@@ -25,14 +25,20 @@ namespace GenderClassification
                     // handle incoming HTTP requests
                     app.Run(async context =>
                     {
-                        // get the request body as bytes
-                        byte[] imageData = new byte[context.Request.ContentLength ?? 0];
-                        await context.Request.Body.ReadAsync(imageData);
-                        using (var image = Image.FromStream(new MemoryStream(imageData)))
+                        try{
+                            // get the request body as bytes
+                            byte[] imageData = new byte[context.Request.ContentLength ?? 0];
+                            await context.Request.Body.ReadAsync(imageData);
+                            using (var image = Image.FromStream(new MemoryStream(imageData)))
+                            {
+                                var jsonResponse = GetPeoplesAttributesFromImage(image);
+                                context.Response.ContentType = "application/json";
+                                await context.Response.WriteAsync(jsonResponse);
+                            }
+                        }
+                        catch (Exception ex)
                         {
-                            var jsonResponse = GetPeoplesAttributesFromImage(image);
-                            context.Response.ContentType = "application/json";
-                            await context.Response.WriteAsync(jsonResponse);
+                            Console.WriteLine($"Error: {ex}");
                         }
                     });
                 })
